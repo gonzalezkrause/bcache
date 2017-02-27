@@ -2,7 +2,7 @@
 VERSION=0.0.3
 NAME=boltcache
 BUILD_TIME=`date +%FT%T%z`
-BUILD_ID=`git rev-parse HEAD`
+BUILD_ID=`git rev-parse --short=10 HEAD`
 
 ###################################
 # DO NOT MODIFY BELLOW THIS POINT #
