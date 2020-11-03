@@ -1,4 +1,4 @@
-# BoltCache
+# BCache
 
 A lightweight cache over http
 
