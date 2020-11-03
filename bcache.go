@@ -129,12 +129,12 @@ func main() {
 	)
 
 	flag.StringVar(&addr, "listen", ":3017", "Address to listen on")
-	flag.StringVar(&dbfile, "db", "/var/boltcache/cache.db", "Cache file")
+	flag.StringVar(&dbfile, "db", "./cache.db", "Cache file")
 	flag.BoolVar(&remove, "rm", false, "Remove cache file after app closes")
 	flag.Parse()
 
-	log.Printf("Starting BoltCache v%s (%s - %s)\n", Version, BuildDate, BuildId)
-	log.Println("Using Bolt DB file:", dbfile)
+	log.Printf("Starting BCache v%s (%s - %s)\n", Version, BuildDate, BuildId)
+	log.Println("Using BoltDB file:", dbfile)
 	if remove {
 		log.Println("Cache file persistence disabled!")
 	}
@@ -143,7 +143,7 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		log.Println("Shutting down BoltCache server")
+		log.Println("Shutting down BCache server")
 		if remove {
 			os.Remove(dbfile)
 		}
