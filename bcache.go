@@ -16,14 +16,19 @@ import (
 )
 
 var (
-	Version   = "0.0.1"
+	// Version to be set on compilation
+	Version = "0.0.1"
+	// BuildDate to be set on compilation
 	BuildDate = "nil"
-	BuildId   = "NoGitID"
+	// BuildID to be set on compilation
+	BuildID = "NoGitID"
 )
 
 var (
-	BucketDoesNotExist   = errors.New("Cache bucket does not exist")
-	KeyDoesNotExistError = errors.New("Key does not exist")
+	// ErrBucketDoesNotExist error
+	ErrBucketDoesNotExist = errors.New("Cache bucket does not exist")
+	// ErrKeyDoesNotExistError error
+	ErrKeyDoesNotExistError = errors.New("Key does not exist")
 )
 
 type server struct {
@@ -51,7 +56,7 @@ func (s *server) Del(bucket, key string) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
-			return BucketDoesNotExist
+			return ErrBucketDoesNotExist
 		}
 
 		return b.Delete([]byte(key))
@@ -62,7 +67,7 @@ func (s *server) Get(bucket, key string) (data []byte, err error) {
 	s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
-			return BucketDoesNotExist
+			return ErrBucketDoesNotExist
 		}
 
 		r := b.Get([]byte(key))
@@ -71,7 +76,7 @@ func (s *server) Get(bucket, key string) (data []byte, err error) {
 			data = make([]byte, len(r))
 			copy(data, r)
 		} else {
-			return KeyDoesNotExistError
+			return ErrKeyDoesNotExistError
 		}
 
 		return nil
@@ -133,7 +138,7 @@ func main() {
 	flag.BoolVar(&remove, "rm", false, "Remove cache file after app closes")
 	flag.Parse()
 
-	log.Printf("Starting BCache v%s (%s - %s)\n", Version, BuildDate, BuildId)
+	log.Printf("Starting BCache v%s (%s - %s)\n", Version, BuildDate, BuildID)
 	log.Println("Using BoltDB file:", dbfile)
 	if remove {
 		log.Println("Cache file persistence disabled!")
