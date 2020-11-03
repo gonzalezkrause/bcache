@@ -9,17 +9,20 @@ import (
 
 var version = "v0.0.1"
 
-type BoltCacheClient struct {
+// BCacheClient object
+type BCacheClient struct {
 	addr string
 }
 
-func NewCache(addr string) *BoltCacheClient {
-	return &BoltCacheClient{
+// NewCache returns a new cache handler
+func NewCache(addr string) *BCacheClient {
+	return &BCacheClient{
 		addr: "http://" + addr + "/v1/",
 	}
 }
 
-func (b *BoltCacheClient) Set(bucket, key, value string) error {
+// Set a new k/v
+func (b *BCacheClient) Set(bucket, key, value string) error {
 	u := b.addr + bucket + "/" + key
 
 	fmt.Println(u)
@@ -38,7 +41,8 @@ func (b *BoltCacheClient) Set(bucket, key, value string) error {
 	return nil
 }
 
-func (b *BoltCacheClient) Get(bucket, key string) ([]byte, error) {
+// Get a k/v pair
+func (b *BCacheClient) Get(bucket, key string) ([]byte, error) {
 	u := b.addr + bucket + "/" + key
 
 	req, err := http.NewRequest("GET", u, nil)
@@ -61,11 +65,12 @@ func (b *BoltCacheClient) Get(bucket, key string) ([]byte, error) {
 	return body, nil
 }
 
-func (b *BoltCacheClient) Del(bucket, key string) error {
+// Del a k/v pair
+func (b *BCacheClient) Del(bucket, key string) error {
 	u := b.addr + bucket + "/" + key
 
 	req, err := http.NewRequest("DELETE", u, nil)
-	req.Header.Add("User-Agent", "BoltCache client "+version)
+	req.Header.Add("User-Agent", "BCache client "+version)
 
 	// Create a new client
 	client := &http.Client{}
