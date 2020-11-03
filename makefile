@@ -1,6 +1,6 @@
-# Golem config
+# Config
 VERSION=0.0.3
-NAME=boltcache
+NAME=bcache
 BUILD_TIME=`date +%FT%T%z`
 BUILD_ID=`git rev-parse --short=10 HEAD`
 
