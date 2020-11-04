@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -95,6 +96,22 @@ func (s *server) Buckets() (data []string, err error) {
 	return data, err
 }
 
+func (s *server) Keys(bucket string) (data []string, err error) {
+	err = s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return ErrBucketDoesNotExist
+		}
+
+		return b.ForEach(func(key, _ []byte) error {
+			data = append(data, string(key))
+			return nil
+		})
+	})
+
+	return data, err
+}
+
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -116,6 +133,29 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write([]byte(str))
+		return
+	}
+
+	if strings.Contains(r.URL.Path, "/v1/keys/") {
+		if vars["key"] == "" {
+			http.Error(w, "Missing bucket name", http.StatusBadRequest)
+			return
+		}
+
+		keys, err := s.Keys(vars["key"])
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var str string
+		for i := range keys {
+			str += keys[i] + "\n"
+		}
+
+		w.Write([]byte(str))
+
 		return
 	}
 
@@ -194,6 +234,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Handle("/v1/{bucket}/{key}", server)
+	router.Handle("/v1/keys/{bucket}", server)
 	router.Handle("/v1/buckets", server)
 	router.Handle("/", server)
 	http.Handle("/", router)
