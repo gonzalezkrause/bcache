@@ -1,13 +1,12 @@
-package data
+package client
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
-var version = "v0.0.1"
+var version = "v1.0.0"
 
 // BCacheClient object
 type BCacheClient struct {
@@ -25,10 +24,8 @@ func NewCache(addr string) *BCacheClient {
 func (b *BCacheClient) Set(bucket, key, value string) error {
 	u := b.addr + bucket + "/" + key
 
-	fmt.Println(u)
-
-	req, err := http.NewRequest("POST", u, bytes.NewBuffer([]byte(value)))
-	req.Header.Add("User-Agent", "BoltCache client "+version)
+	req, err := http.NewRequest("PUT", u, bytes.NewBuffer([]byte(value)))
+	req.Header.Add("User-Agent", "BCache client "+version)
 
 	// Create a new client
 	client := &http.Client{}
@@ -46,7 +43,7 @@ func (b *BCacheClient) Get(bucket, key string) ([]byte, error) {
 	u := b.addr + bucket + "/" + key
 
 	req, err := http.NewRequest("GET", u, nil)
-	req.Header.Add("User-Agent", "BoltCache client "+version)
+	req.Header.Add("User-Agent", "BCache client "+version)
 
 	// Create a new client
 	client := &http.Client{}
@@ -81,4 +78,52 @@ func (b *BCacheClient) Del(bucket, key string) error {
 	defer res.Body.Close()
 
 	return nil
+}
+
+// GetBuckets stored
+func (b *BCacheClient) GetBuckets() ([]byte, error) {
+	u := b.addr + "/buckets"
+
+	req, err := http.NewRequest("GET", u, nil)
+	req.Header.Add("User-Agent", "BCache client "+version)
+
+	// Create a new client
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer res.Body.Close()
+
+	// Readout the body
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return body, nil
+}
+
+// GetKeys stored
+func (b *BCacheClient) GetKeys(bucket string) ([]byte, error) {
+	u := b.addr + "/keys/" + bucket
+
+	req, err := http.NewRequest("GET", u, nil)
+	req.Header.Add("User-Agent", "BCache client "+version)
+
+	// Create a new client
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer res.Body.Close()
+
+	// Readout the body
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return body, nil
 }

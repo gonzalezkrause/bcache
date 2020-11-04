@@ -1,5 +1,5 @@
 # Config
-VERSION=0.0.3
+VERSION=1.0.0
 NAME=bcache
 BUILD_TIME=`date +%FT%T%z`
 BUILD_ID=`git rev-parse --short=10 HEAD`

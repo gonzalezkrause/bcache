@@ -1,4 +1,4 @@
-module github.com/hcninja/bcache
+module github.com/gonzalezkrause/bcache
 
 go 1.14
 
