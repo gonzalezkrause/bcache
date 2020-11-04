@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
+	bolt "go.etcd.io/bbolt"
 )
 
 var (
@@ -84,8 +84,40 @@ func (s *server) Get(bucket, key string) (data []byte, err error) {
 	return
 }
 
+func (s *server) Buckets() (data []string, err error) {
+	err = s.db.View(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			data = append(data, string(name))
+			return nil
+		})
+	})
+
+	return data, err
+}
+
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
+	if r.URL.Path == "/" {
+		w.Write([]byte("BCache v" + Version + "\r\n"))
+		return
+	}
+
+	if r.URL.Path == "/v1/buckets" {
+		bucks, err := s.Buckets()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var str string
+		for i := range bucks {
+			str += bucks[i] + "\n"
+		}
+
+		w.Write([]byte(str))
+		return
+	}
 
 	if vars["bucket"] == "" || vars["key"] == "" {
 		http.Error(w, "Missing bucket or key", http.StatusBadRequest)
@@ -162,6 +194,8 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Handle("/v1/{bucket}/{key}", server)
+	router.Handle("/v1/buckets", server)
+	router.Handle("/", server)
 	http.Handle("/", router)
 
 	log.Println("Listening on:", addr)
