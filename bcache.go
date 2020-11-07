@@ -17,12 +17,9 @@ import (
 )
 
 var (
-	// Version to be set on compilation
-	Version = "0.0.1"
-	// Date to be set on compilation
-	Date = "nil"
-	// Commit to be set on compilation
-	Commit = "NoGitID"
+	version = "dev"
+	date    = "none"
+	commit  = "unknown"
 )
 
 var (
@@ -116,7 +113,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	if r.URL.Path == "/" {
-		w.Write([]byte("BCache v" + Version + "\r\n"))
+		w.Write([]byte("BCache v" + version + "\r\n"))
 		return
 	}
 
@@ -210,7 +207,7 @@ func main() {
 	flag.BoolVar(&remove, "rm", false, "Remove cache file after app closes")
 	flag.Parse()
 
-	log.Printf("Starting BCache v%s (%s - %s)\n", Version, Date, Commit)
+	log.Printf("Starting BCache v%s (%s - %s)\n", version, date, commit)
 	log.Println("Using BoltDB file:", dbfile)
 	if remove {
 		log.Println("Cache file persistence disabled!")
