@@ -19,10 +19,10 @@ import (
 var (
 	// Version to be set on compilation
 	Version = "0.0.1"
-	// BuildDate to be set on compilation
-	BuildDate = "nil"
-	// BuildID to be set on compilation
-	BuildID = "NoGitID"
+	// Date to be set on compilation
+	Date = "nil"
+	// Commit to be set on compilation
+	Commit = "NoGitID"
 )
 
 var (
@@ -210,7 +210,7 @@ func main() {
 	flag.BoolVar(&remove, "rm", false, "Remove cache file after app closes")
 	flag.Parse()
 
-	log.Printf("Starting BCache v%s (%s - %s)\n", Version, BuildDate, BuildID)
+	log.Printf("Starting BCache v%s (%s - %s)\n", Version, Date, Commit)
 	log.Println("Using BoltDB file:", dbfile)
 	if remove {
 		log.Println("Cache file persistence disabled!")
