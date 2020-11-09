@@ -7,3 +7,5 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/sys v0.0.0-20201101102859-da207088b7d1 // indirect
 )
+
+replace github.com/gonzalezkrause/bcache/client => ./client
